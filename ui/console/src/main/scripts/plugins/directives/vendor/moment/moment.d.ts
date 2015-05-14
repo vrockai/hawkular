@@ -468,3 +468,4 @@ declare var moment: moment.MomentStatic;
 declare module 'moment' {
     export = moment;
 }
+

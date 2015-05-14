@@ -51,8 +51,19 @@ var config = {
 };
 
 gulp.task('bower', function () {
+    var cacheBuster = Date.now();
+
     gulp.src('index.html')
-        .pipe(wiredep({}))
+        .pipe(wiredep({
+          fileTypes: {
+            html: {
+              replace: {
+                js: '<script src="{{filePath}}?v=' + cacheBuster + '"></script>',
+                css: '<link rel="stylesheet" href="{{filePath}}?v=' + cacheBuster + '" />'
+              }
+            }
+          }
+        }))
         .pipe(gulp.dest('.'));
 });
 
@@ -70,6 +81,17 @@ gulp.task('path-adjust', function () {
 
 gulp.task('clean-defs', function () {
     del(['defs.d.ts/**']);
+});
+
+gulp.task('git-sha', function(cb) {
+  plugins.git.exec({args : 'log -n 1 --oneline'}, function (err, stdout) {
+    if (err) throw err;
+    var versionFile = 'version.js';
+    var gitSha = stdout.slice(0, -1);
+    var jsString = 'var HawkularVersion = \'' + gitSha + '\';';
+    fs.writeFileSync(versionFile, jsString);
+    cb();
+  });
 });
 
 gulp.task('tsc', ['clean-defs'], function () {
@@ -111,11 +133,16 @@ gulp.task('tslint-watch', function () {
         }));
 });
 
-gulp.task('template', ['tsc'], function () {
+gulp.task('template', ['tsc', 'less'], function () {
     return gulp.src(config.templates)
         .pipe(plugins.angularTemplatecache({
             filename: 'templates.js',
-            root: 'plugins/',
+            root: '',
+            base: function(file){
+              var filename = /[^/]*$/.exec( file.relative).input;
+              var prefixIndex = filename.indexOf('/') + 1;
+              return filename.substring(prefixIndex, filename.length);
+            },
             standalone: true,
             module: config.templateModule,
             templateFooter: '}]); hawtioPluginLoader.addModule("' + config.templateModule + '");'
@@ -123,10 +150,17 @@ gulp.task('template', ['tsc'], function () {
         .pipe(gulp.dest('.'));
 });
 
-gulp.task('concat', ['template'], function () {
+gulp.task('less', function(){
+  return gulp.src(['plugins/**/*.less'])
+    .pipe(plugins.less())
+    .pipe(plugins.concat('console-style.css'))
+    .pipe(gulp.dest(config.dist));
+});
+
+gulp.task('concat', ['template', 'git-sha'], function () {
     var gZipSize = size(gZippedSizeOptions);
 
-    return gulp.src(['compiled.js', 'templates.js'])
+    return gulp.src(['compiled.js', 'templates.js', 'version.js'])
         .pipe(plugins.concat(config.js))
         .pipe(gulp.dest(config.dist))
         .pipe(size(normalSizeOptions))
@@ -146,10 +180,6 @@ gulp.task('watch', ['build'], function () {
     });
     plugins.watch(['libs/**/*.d.ts', config.ts, config.templates], function () {
         gulp.start(['tslint-watch', 'tsc', 'template', 'concat', 'clean']);
-    });
-
-    plugins.watch([config.less], function () {
-        gulp.start(['less']);
     });
 
     /* If something in the src folder changes, just copy it and let the handlers above handle the situation */

@@ -16,58 +16,92 @@
  */
 package org.hawkular.component.pinger;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.impl.client.HttpClientBuilder;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.concurrent.Future;
 
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.concurrent.Future;
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.methods.HttpHead;
+import org.apache.http.conn.ssl.SSLContextBuilder;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
  * Bean that does the pinging. Runs async.
  *
  * @author Heiko W. Rupp
+ * @author Martin Večeřa
  *
  */
 @Stateless
 public class Pinger {
 
-    @Asynchronous
-    public Future<PingStatus> ping(PingDestination destination) {
+    /**
+     * SSL Context trusting all certificates.
+     */
+    private final SSLContext sslContext;
 
-        HttpHead head = new HttpHead(destination.url);
-        HttpClient client = HttpClientBuilder.create().build();
-
-
-        long t1 = System.currentTimeMillis();
-        PingStatus status = new PingStatus(destination,t1);
+    public Pinger() throws Exception {
+        SSLContext tmpSslContext;
 
         try {
+            SSLContextBuilder builder = SSLContexts.custom();
+            builder.loadTrustMaterial(null, new TrustStrategy() {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType)
+                      throws CertificateException {
+                    return true;
+                }
+            });
+            tmpSslContext = builder.build();
+
+        } catch (Exception e) {
+            tmpSslContext = null;
+        }
+
+        sslContext = tmpSslContext;
+    }
+
+    private CloseableHttpClient getHttpClient(final String url) {
+        if (url != null && url.startsWith("https") && sslContext != null) {
+            return HttpClientBuilder.create().setSslcontext(sslContext).build();
+        } else {
+            return HttpClientBuilder.create().build();
+        }
+    }
+
+    @Asynchronous
+    public Future<PingStatus> ping(final PingStatus status) {
+
+        HttpHead head = new HttpHead(status.destination.url);
+
+        try (CloseableHttpClient client = getHttpClient(status.destination.url)) {
             HttpResponse httpResponse = client.execute(head);
             StatusLine statusLine = httpResponse.getStatusLine();
-            long t2 = System.currentTimeMillis();
+            long now = System.currentTimeMillis();
 
             status.code = statusLine.getStatusCode();
-            status.duration = (int)(t2-t1);
-            status.setTimestamp(t2);
+            status.duration = (int) (now - status.getTimestamp());
+            status.setTimestamp(now);
         } catch (UnknownHostException e) {
             status.code = 404;
-            status.setTimestamp(t1);
         } catch (IOException e) {
             Log.LOG.wPingExeption(e.getMessage());
-            status.setTimestamp(t1);
             status.code = 500;
         } finally {
             head.releaseConnection();
         }
 
         return new AsyncResult<>(status);
-
     }
 }

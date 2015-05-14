@@ -7,6 +7,7 @@
   "registrationAllowed" : true,
   "requiredCredentials" : [ "password" ],
   "defaultRoles" : [ "user" ],
+  "passwordPolicy" : "length(8) and lowerCase(1) and upperCase(1) and specialChars(1) and digits(1) and hashIterations(1024)",
   "roles" : {
     "realm" : [
       {
@@ -44,33 +45,33 @@
   },
   "scopeMappings": [
     {
-      "client": "hawkular-accounts-ui",
+      "client": "hawkular-ui",
       "roles": ["user"]
     }
   ],
+  "applicationScopeMappings" : {
+    "account" : [ {
+      "client" : "hawkular-ui",
+      "roles" : [ "manage-account", "view-profile" ]
+    } ]
+  },
   "applications" : [
     {
       "name": "hawkular-accounts-backend",
       "enabled": true,
-      "bearerOnly" : true,
+      "bearerOnly" : false,
       "publicClient": false,
       "secret" : "${uuid.hawkular.accounts.backend}"
     },
     {
-      "name": "hawkular-accounts-ui",
+      "name": "hawkular-ui",
       "enabled": true,
       "bearerOnly" : false,
       "publicClient": true,
-      "secret": "${uuid.hawkular.accounts.ui}",
+      "secret": "${uuid.hawkular.ui}",
       "fullScopeAllowed" : false,
-      "redirectUris": [
-        "http://localhost:9000/*",
-        "http://localhost:2772/*"
-      ],
-      "webOrigins": [
-        "http://localhost:9000",
-        "http://localhost:2772"
-      ],
+      "redirectUris": ["/*"],
+      "webOrigins": [],
       "claims": {
         "username": true,
         "name": true,

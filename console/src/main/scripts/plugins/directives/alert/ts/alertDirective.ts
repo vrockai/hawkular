@@ -26,7 +26,7 @@ module Alert {
       alert: '=hkAlert',
       refresh: '&hkRefresh'
     };
-    public templateUrl = 'plugins/alert/html/alert.html';
+    public templateUrl = 'plugins/directives/alert/html/alert.html';
 
 
     constructor(private HawkularAlert) {

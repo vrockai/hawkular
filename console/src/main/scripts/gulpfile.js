@@ -181,8 +181,7 @@ var gulpTemplate = function(){
       root: '',
       base: function(file){
         var filename = /[^/]*$/.exec( file.relative).input;
-        var prefixIndex = filename.indexOf('/') + 1;
-        return filename.substring(prefixIndex, filename.length);
+        return 'plugins/' + filename;
       },
       standalone: true,
       module: config.templateModule,

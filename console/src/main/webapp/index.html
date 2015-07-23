@@ -67,6 +67,12 @@
       <div class="container screen-content" ng-include src="viewPartial"></div>
     </div>
 
+  <div ng-non-bindable data-$injector="">
+    <div id="redhat-access-cases">
+      <div ui-view autoscroll="false"></div>
+    </div>
+  </div>
+
     <!-- add any scripts under dist/ here -->
     <script src="dist/hawkular-console.js?v=${hawkular.console.timestamp}"></script>
     <script>

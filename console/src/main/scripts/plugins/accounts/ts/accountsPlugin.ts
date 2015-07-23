@@ -28,7 +28,7 @@ module HawkularAccounts {
             .id(HawkularAccounts.pluginName)
             .title(() => 'Accounts')
             .href(() => '/accounts')
-            .subPath('My account', 'accounts', builder.join(HawkularAccounts.templatePath, 'accounts.html'))
+            .subPath('My account', 'accounts', builder.join(HawkularAccounts.templatePath, 'accessPortal.html'))
             .subPath('Organizations', 'organizations', builder.join(HawkularAccounts.templatePath,
                 'organizations.html'))
             .build();

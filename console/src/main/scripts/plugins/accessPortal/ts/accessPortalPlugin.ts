@@ -19,13 +19,8 @@
 module AccessPortal {
     export var _module = angular.module(AccessPortal.pluginName, ['ui.bootstrap']);
 
-    _module.config(['$window', '$routeProvider', ($window, $routeProvider:ng.route.IRouteProvider) => {
-        $window.strata.setRedhatClientID('hawkular-1.0.0');
-        $routeProvider.otherwise('case/list');
-    }]);
-
-    _module.run(() => {
-        angular.bootstrap(document.getElementById('redhat-access-cases'), ['RedhatAccess.cases']);
+    _module.run(['$window'], ($window) => {
+      $window.strata.setRedhatClientID('hawkular-1.0.0');
     });
 
     hawtioPluginLoader.addModule(AccessPortal.pluginName);

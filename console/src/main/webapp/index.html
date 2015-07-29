@@ -80,14 +80,6 @@
     <script>
       var title = 'HAWKULAR: ' + HawkularVersion;
       document.getElementById("hawkularLogo").title = title;
-
-      angular.module('RedhatAccess.cases').config(function ($urlRouterProvider) {
-        $urlRouterProvider.otherwise('case/list');
-      });
-
-      angular.element(document).ready(function() {
-        angular.bootstrap(document.getElementById("redhat-access-cases"), ['RedhatAccess.cases']);
-      });
     </script>
   </body>
 </html>

@@ -16,7 +16,7 @@
 ///
 
 module AccessPortal {
-    export var pluginName = 'hawkular-redhat-access-portal';
+    export var pluginName = 'RedhatAccess.cases';
     export var log:Logging.Logger = Logger.get(pluginName);
     export var templatePath = 'plugins/accessPortal/html';
 }

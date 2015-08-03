@@ -17,7 +17,7 @@
 
 /// <reference path='accessPortalGlobals.ts'/>
 module AccessPortal {
-    export var _module = angular.module(AccessPortal.pluginName, ['ui.bootstrap']);
+    export var _module = angular.module(AccessPortal.pluginName, ['ui.bootstrap', 'RedhatAccess.cases']);
 
     _module.run(['$window', ($window) => {
       console.debug('Initializing module AccessPortal, run()');
@@ -28,7 +28,7 @@ module AccessPortal {
 
     _module.config(['$routeProvider', ($routeProvider) => {
       console.debug('Adding route /case/list to routes');
-      $routeProvider.when('/case/list', {
+      $routeProvider.when('/hawkular-ui/case/list', {
         templateUrl: 'cases/views/list.html',
         controller: 'List'
       });

@@ -16,7 +16,7 @@
 ///
 
 module AccessPortal {
-    export var pluginName = 'RedhatAccess.cases';
+    export var pluginName = 'RedhatAccessCases';
     export var log:Logging.Logger = Logger.get(pluginName);
     export var templatePath = 'plugins/accessPortal/html';
 }

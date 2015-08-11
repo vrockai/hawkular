@@ -22,13 +22,13 @@ module HawkularComponents {
 
   export class HkSwitch {
 
-    public link:(scope:any, attrs:any, element:any) => void;
+    public link:(scope:any, element:any, attrs:any) => void;
     public replace = 'true';
     public scope = {
       name: '@',
       id: '@',
-      ngModel: '=',
-      ngDisabled: '=',
+      hkModel: '=',
+      hkDisabled: '=',
       hkChange: '&',
       hkClick: '&'
     };
@@ -65,4 +65,56 @@ module HawkularComponents {
   }
 
   _module.directive('hkSwitch', HawkularComponents.HkSwitch.Factory());
+
+  export class HkTimeInput {
+
+    public link:(scope:any, attrs:any, element:any) => void;
+    public replace = 'true';
+    public scope = {
+      id: '@',
+      hkDuration: '=',
+      hkDisabled: '=',
+      hkAutoConvert: '='
+    };
+    public templateUrl = 'plugins/directives/components/html/time-input.html';
+
+    constructor(private hkTimeUnit:any) {
+      this.link = (scope:any, element:any, attrs:any) => {
+        element.removeAttr('id');
+
+        var durationBackup = scope.hkDuration || 0;
+
+        scope.timeUnits = hkTimeUnit.timeUnits;
+        scope.timeUnitsDict = hkTimeUnit.timeUnitDictionary;
+
+        scope.durationChange = ():void => {
+          if (scope.hkAutoConvert) {
+            scope.hkDuration = scope.hkConvertedDuration * scope.responseUnit;
+          }
+        };
+
+        scope.computeTimeInUnits = ():void => {
+          scope.hkConvertedDuration = scope.hkDuration / scope.responseUnit;
+        };
+
+        scope.$watch('hkDuration', (newDuration, oldDuration) => {
+          scope.durationEnabled = scope.hkDuration !== 0;
+          scope.responseUnit = hkTimeUnit.getFittestTimeUnit(scope.hkDuration);
+          scope.computeTimeInUnits();
+        });
+      };
+    }
+
+    public static Factory() {
+      var directive = (hkTimeUnit:any) => {
+        return new HkTimeInput(hkTimeUnit);
+      };
+
+      directive['$inject'] = ['hkTimeUnit'];
+
+      return directive;
+    }
+  }
+
+  _module.directive('hkTimeInput', HawkularComponents.HkTimeInput.Factory());
 }

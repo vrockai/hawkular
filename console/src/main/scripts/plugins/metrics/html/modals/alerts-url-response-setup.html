@@ -2,9 +2,41 @@
   <button type="button" class="close" ng-click="mas.cancel()">
     <span class="pficon pficon-close"></span>
   </button>
-  <h4 class="modal-title">Alert Settings</h4>
+  <h4 class="modal-title">Response Time Alert Settings</h4>
 </div>
+
 <div class="modal-body alert-settings">
+  <div class="hk-tab-content">
+    <p>Configure conditions settings for Availability alerts and notifications.</p>
+    <form class="form-horizontal">
+      <fieldset>
+        <legend>Downtime</legend>
+        <div class="form-group">
+          <label class="col-sm-3 control-label" for="dw-duration">Duration (maximum)</label>
+          <div class="col-sm-5 inline-row">
+            <div class="input-group input-select">
+              <input type="text" class="form-control" placeholder="Duration" id="dw-duration" value="5">
+              <select class="selectpicker" style="display: none;">
+                <option>seconds</option>
+                <option selected="selected">minutes</option>
+                <option>hours</option>
+              </select><div class="btn-group bootstrap-select input-group-btn"><button type="button" class="btn dropdown-toggle selectpicker btn-default" data-toggle="dropdown" title="minutes"><span class="filter-option pull-left">minutes</span>&nbsp;<span class="caret"></span></button><div class="dropdown-menu open"><ul class="dropdown-menu inner selectpicker" role="menu"><li rel="0"><a tabindex="0" class="" style=""><span class="text">seconds</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="1" class="selected"><a tabindex="0" class="" style=""><span class="text">minutes</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li><li rel="2"><a tabindex="0" class="" style=""><span class="text">hours</span><i class="glyphicon glyphicon-ok icon-ok check-mark"></i></a></li></ul></div></div>
+            </div>
+          </div>
+          <div class="col-sm-4">
+            <hk-switch hk-model="jas.adm.heap.conditionLtEnabled"
+                       id="usage-less-switch" class="pull-right"></hk-switch>
+          </div>
+        </div>
+      </fieldset>
+      <hk-fieldset-dampening hk-duration="jas.adm.heap.responseDuration"></hk-fieldset-dampening>
+
+      <hk-fieldset-notification hk-alert-email="jas.adm.heap.email"></hk-fieldset-notification>
+    </form>
+  </div>
+</div>
+
+<!--div class="modal-body alert-settings">
   <form class="form-horizontal" name="mas.alertsSetup">
     <fieldset>
       <legend>Contact</legend>
@@ -98,7 +130,7 @@
       </div>
     </fieldset>
   </form>
-</div>
+</div-->
 <div class="modal-footer alert-settings">
   <button type="button" class="btn btn-primary" ng-click="mas.save()"
           ng-disabled="!mas.alertsSetup.$valid || !mas.isSettingChange || mas.saveProgress">
